@@ -1,0 +1,68 @@
+Table Name: Departments
+Table Description: This table contains information about departments, including their unique identifiers, names, and abbreviations.
+Columns:
+Column: DepartmentID, Type: INTEGER, Mode: REQUIRED, Description: A unique identifier assigned to each department. This serves as the primary key for the Departments table.
+Column: Name, Type: STRING, Mode: REQUIRED, Description: The name of the department.
+Column: Abbrevation, Type: STRING, Mode: REQUIRED, Description: The abbreviation of the department name.
+
+Table Name: Students
+Table Description: This table stores information about students, including their unique identifiers, names, warning counts, and associated department details.
+Columns:
+Column: RollNo, Type: STRING, Mode: REQUIRED, Description: A unique identifier assigned to each student. This serves as the primary key for the Students table. 
+Column: Name, Type: STRING, Mode: REQUIRED, Description: The full name of the student.
+Column: WarningCount, Type: INTEGER, Mode: NULLABLE, Description: The count of warnings issued to a student. Defaults to zero. A warning is added when a student's CGPA falls below 2.
+Column: DepartmentID, Type: STRING, Mode: REQUIRED, Description: The identifier of the department to which the student belongs. This is a foreign key referencing the Departments table.
+
+Table Name: Courses
+Table Description: This table contains information about courses, including their unique identifiers, names, prerequisites, and credit hours.
+Columns:
+Column: CourseID, Type: INTEGER, Mode: REQUIRED, Description: A unique identifier assigned to each course. This serves as the primary key for the Courses table. 
+Column: CourseName, Type: STRING, Mode: REQUIRED, Description: The name of the course.
+Column: PrerequiteCourseID, Type: INTEGER, Mode: NULLABLE, Description: The CourseID of the prerequisite course. This references the CourseID column in the same Courses table.
+Column: CreditHours, Type: INTEGER, Mode: REQUIRED, Description:  The total number of credit hours assigned to the course.
+
+Table Name: Instructors
+Table Description: This table contains information about instructors, including their unique identifiers, names, and associated departments.
+Columns:
+Column: InstructorID, Type: INTEGER, Mode: REQUIRED, Description: A unique identifier assigned to each instructor. This serves as the primary key for the Instructors table. 
+Column: Name, Type: STRING, Mode: REQUIRED, Description: The full name of the instructor.
+Column: DepartmentID, Type: STRING, Mode: NULLABLE, Description: The identifier of the department to which the instructor belongs. This is a foreign key referencing the Departments table.
+
+Table Name: Semester
+Table Description: This table contains information about academic semesters, including their names and statuses.
+Columns:
+Column: Semester, Type: STRING, Mode: REQUIRED, Description: The name or identifier for the semester (e.g., "Fall 2025", "Spring 2026").
+Column: StatusID, Type: INTEGER, Mode: REQUIRED, Description: The current status of the semester. This is a foreign key referencing the StatusID column in the SemesterStatus table.
+
+Table Name: SemesterStatus
+Table Description: This table contains information about possible statuses for academic semesters.
+Columns:
+Column: StatusID, Type: INTEGER, Mode: REQUIRED, Description: A unique identifier for each semester status and is the primary key for this table.
+Column: StatusDescription, Type: STRING, Mode: REQUIRED, Description: The status of the semester, such as "Complete", "InProgress" or "Cancelled".
+
+Table Name: Courses_Semester
+Table Description: This table contains information about courses offered in specific semesters, including details about instructors, sections, seat availability, and associated departments.
+Columns:
+Column: InstructorID, Type: INTEGER, Mode: REQUIRED, Description: Foreign key referencing the InstructorID column in the Instructors table.
+Column: CourseID, Type: INTEGER, Mode: REQUIRED, Description: Foreign key referencing the CourseID column in the Courses table.
+Column: Semester, Type: STRING, Mode: REQUIRED, Description: Foreign key referencing the Semester column in the Semester table
+Column: Section, Type: STRING, Mode: REQUIRED, Description: The section of the course (e.g., "A", "B").
+Column: AvailableSeats, Type: INTEGER, Mode: REQUIRED, Description: The number of seats available for this course section in the semester.
+Column: DepartmentID, Type: STRING, Mode: REQUIRED, Description: Foreign key referencing the DepartmentID column in the Departments table.
+
+Table Name: Registration
+Table Description: This table contains information about students' course registrations in specific semesters, including their section and GPA.
+Columns:
+Column: Semester, Type: STRING, Mode: REQUIRED, Description:  Foreign key referencing the Semester column in the Semester table.
+Column: RollNumber, Type: STRING, Mode: REQUIRED, Description: Foreign key referencing the RollNo column in the Students table.
+Column: CourseID, Type: INTEGER, Mode: REQUIRED, Description:  Foreign key referencing the CourseID column in the Courses table.
+Column: Section, Type: STRING, Mode: REQUIRED, Description: The section of the course (e.g., "A", "B").
+Column: GPA, Type: FLOAT, Mode: REQUIRED, Description: The GPA of the student in the course.
+
+Table Name: ChallanForm
+Table Description: This table contains information about challan forms issued to students, including details about the semester, total dues, and payment status.
+Columns:
+Column: Semester, Type: STRING, Mode: REQUIRED, Description:  Foreign key referencing the Semester column in the Semester table.
+Column: RollNumber, Type: STRING, Mode: REQUIRED, Description: Foreign key referencing the RollNo column in the Students table.
+Column: TotalDues, Type: INTEGER, Mode: REQUIRED, Description: The total dues for the student for the specified semester.
+Column: Status, Type: STRING, Mode: REQUIRED, Description: The status of the challan, such as "Paid" or "Pending".
