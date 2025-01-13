@@ -1,56 +1,75 @@
-import os
-import uuid
-from dotenv import load_dotenv
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-import chromadb
-from chromadb.config import Settings
-
-# Load environment variables
+from langchain_chroma import Chroma
+from langchain.docstore.document import Document  # Import Document class
+import os
+from uuid import uuid4
+from dotenv import load_dotenv
 load_dotenv()
+
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-chroma_client = chromadb.PersistentClient(
-    path="./chroma_db", 
-    settings=Settings(anonymized_telemetry=False))
 
-collection = chroma_client.create_collection(name="my_collection")
+schema_file = 'preprocessed_schema.txt'
 
-# Initialize embedding model
 embeddings = GoogleGenerativeAIEmbeddings(
     model="models/embedding-001",
-    google_api_key=GEMINI_API_KEY
+    google_api_key=GEMINI_API_KEY,
+    task_type="retrieval_document"
 )
 
-# Read the schema from schema.txt
-def read_schema(file_path):
-    with open(file_path, "r") as file:
-        lines = file.readlines()
-    return lines
+# Function to generate embeddings
+def generate_embeddings(file_path):
+    try:
+        # Read the schema file
+        with open(file_path, 'r') as f:
+            schema_content = f.read()
+        
+        # Assuming each table starts with 'Table Name:'
+        tables = schema_content.split('Table Name:')[1:]
+        tables = [f"Table Name:{table.strip()}" for table in tables]  # Re-add 'Table Name:'
 
-# Generate embeddings and store in ChromaDB
-def store_schema_embeddings(schema_file):
-    schema_lines = read_schema(schema_file)
+        # Generate embeddings for each table and store them
+        embeddings_list = []
+        for table in tables:
+            table_embedding = embeddings.embed_documents([table])[0]  # Ensure we get the embedding for the table
+            embeddings_list.append({
+                "document": table,
+                "embedding": table_embedding
+            })
 
-    for line in schema_lines:
-        # Skip empty lines or lines without meaningful content
-        if not line.strip():
-            continue
+        return embeddings_list
+    except Exception as e:
+        print(f"Error generating embeddings: {e}")
+        return None
 
-        # Create embeddings for each line (e.g., table/column description)
-        try:
-            embedding = embeddings.embed_query(line)
-        except Exception as e:
-            print(f"Error generating embedding for line: {line.strip()}. Error: {e}")
-            continue
-        # Generate a unique ID for each line
-        unique_id = str(uuid.uuid4())
+# Generate embeddings for the schema
+schema_embeddings = generate_embeddings(schema_file)
 
-        # Store the embedding in ChromaDB
-        try:
-            collection.add(
-                ids=[unique_id],  # Use a unique ID
-                documents=[line],  # Store the schema description text
-                embeddings=[embedding]  # Store the embedding vector
-            )
-            print(f"Stored embedding for: {line.strip()}")
-        except Exception as e:
-            print(f"Error storing embedding for line: {line.strip()}. Error: {e}")
+# Print the embeddings and store them in Chroma
+if schema_embeddings:
+    print("Schema Embeddings:")
+    print(schema_embeddings)
+
+    # Create Chroma vector store
+    vector_store = Chroma(
+        collection_name="example_collection",
+        embedding_function=embeddings,
+        persist_directory="./chroma_langchain_db",  # Where to save data locally, remove if not necessary
+    )
+
+    # Generate unique IDs for the documents
+    uuids = [str(uuid4()) for _ in range(len(schema_embeddings))]
+
+    # Prepare the documents as langchain Document objects
+    documents = [Document(page_content=embedding_data["document"]) for embedding_data in schema_embeddings]
+    embeddings_list = [embedding_data["embedding"] for embedding_data in schema_embeddings]
+
+    # Add each embedding to the Chroma collection using add_documents method
+    vector_store.add_documents(
+        documents=documents,
+        embeddings=embeddings_list,
+        ids=uuids
+    )
+
+    print("Embeddings have been stored in Chroma.")
+else:
+    print("Failed to generate and store schema embeddings.")
