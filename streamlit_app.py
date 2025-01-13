@@ -12,17 +12,14 @@ def main():
     llm, vector_store = initialize_components()
     
     # Create input field for user query
-    user_query = st.text_area("Enter your query:", height=100,
+    user_query = st.text_area("Enter your query:", height=68,
                              placeholder="Example: Provide me the names of the students that have paid their challanform and are in semester fall 2025")
-    
-    # Add a slider for the number of context results
-    k_value = 3
     
     # Add a button to generate response
     if st.button("Generate SQL Query"):
         if user_query:
             with st.spinner("Generating SQL query..."):
-                response = get_response(user_query, llm, vector_store, k=k_value)
+                response = get_response(user_query, llm, vector_store, k=3)
                 
                 if response:
                     st.success("Query generated successfully!")

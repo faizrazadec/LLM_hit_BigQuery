@@ -30,7 +30,7 @@ def test_retrieval(query, k=3):
         if results:
             print(f"Top {k} results for the query: '{query}'")
             for idx, res in enumerate(results):
-                print(f"{idx + 1}. {res.page_content} [{res.metadata}]")
+                print(f"{idx + 1}. {res.page_content}")
         else:
             print("No results found.")
     
@@ -38,5 +38,5 @@ def test_retrieval(query, k=3):
         print(f"Error during retrieval: {e}")
 
 if __name__ == "__main__":
-    query = 'Provide me the names of the students that have paid their challanform and are in semester fall 2025?'
+    query = 'Get the three students from the course computer science who have paid the challanform'
     test_retrieval(query)
