@@ -20,13 +20,13 @@ Columns: Following are the coloumns of the Table Name Students
 Column: RollNo, Type: STRING, Mode: REQUIRED, Description: A unique identifier assigned to each student. This serves as the primary key for the Students table. 
 Column: Name, Type: STRING, Mode: REQUIRED, Description: The full name of the student.
 Column: WarningCount, Type: INTEGER, Mode: NULLABLE, Description: The count of warnings issued to a student. Defaults to zero. A warning is added when a student's CGPA falls below 2.
-Column: DepartmentID, Type: STRING, Mode: REQUIRED, Description: The identifier of the department to which the student belongs. This is a foreign key referencing the Departments table.
+Column: DepartmentID, Type: INTEGER, Mode: REQUIRED, Description: The identifier of the department to which the student belongs. This is a foreign key referencing the Departments table.
 Data Definition Language:
 `CREATE TABLE Students (
     RollNo STRING NOT NULL PRIMARY KEY,
     Name STRING NOT NULL,
     WarningCount INTEGER DEFAULT 0,
-    DepartmentID STRING NOT NULL,
+    DepartmentID INTEGER NOT NULL,
     FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
 );`
 Relationships of Table Name Students with other Tables:
@@ -57,12 +57,12 @@ Table Description: This table contains information about instructors, including 
 Columns: Following are the coloumns of the Table Name Instructors
 Column: InstructorID, Type: INTEGER, Mode: REQUIRED, Description: A unique identifier assigned to each instructor. This serves as the primary key for the Instructors table. 
 Column: Name, Type: STRING, Mode: REQUIRED, Description: The full name of the instructor.
-Column: DepartmentID, Type: STRING, Mode: NULLABLE, Description: The identifier of the department to which the instructor belongs. This is a foreign key referencing the Departments table.
+Column: DepartmentID, Type: INTEGER, Mode: NULLABLE, Description: The identifier of the department to which the instructor belongs. This is a foreign key referencing the Departments table.
 Data Definition Language:
 `CREATE TABLE Instructors (
     InstructorID INTEGER NOT NULL PRIMARY KEY,
     Name STRING NOT NULL,
-    DepartmentID STRING,
+    DepartmentID INTEGER,
     FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
 );`
 Relationships of Table Name Instructors with other Tables:
@@ -106,7 +106,7 @@ Column: CourseID, Type: INTEGER, Mode: REQUIRED, Description: Foreign key refere
 Column: Semester, Type: STRING, Mode: REQUIRED, Description: Foreign key referencing the Semester column in the Semester table
 Column: Section, Type: STRING, Mode: REQUIRED, Description: The section of the course (e.g., "A", "B").
 Column: AvailableSeats, Type: INTEGER, Mode: REQUIRED, Description: The number of seats available for this course section in the semester.
-Column: DepartmentID, Type: STRING, Mode: REQUIRED, Description: Foreign key referencing the DepartmentID column in the Departments table.
+Column: DepartmentID, Type: INTEGER, Mode: REQUIRED, Description: Foreign key referencing the DepartmentID column in the Departments table.
 Data Definition Language:
 `CREATE TABLE Courses_Semester (
     InstructorID INTEGER NOT NULL,
@@ -114,7 +114,7 @@ Data Definition Language:
     Semester STRING NOT NULL,
     Section STRING NOT NULL,
     AvailableSeats INTEGER NOT NULL,
-    DepartmentID STRING NOT NULL,
+    DepartmentID INTEGER NOT NULL,
     PRIMARY KEY (InstructorID, CourseID, Semester, Section),
     FOREIGN KEY (InstructorID) REFERENCES Instructors(InstructorID),
     FOREIGN KEY (CourseID) REFERENCES Courses(CourseID),

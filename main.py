@@ -44,9 +44,10 @@ def get_response(user_input, llm, vector_store, k=3):
 
         # Generate initial response
         response = llm.invoke([system_message, human_message])
+        print(response.usage_metadata)
 
         # Debugging output
-        print("Initial Response:", response.content)
+        # print("Initial Response:", response.content)
 
         if "I cannot generate a SQL query for this request based on the provided schema." in response.content.strip():
             print("Triggering fallback logic with SYSTEM_PROMPT_2")
@@ -94,6 +95,7 @@ def get_response(user_input, llm, vector_store, k=3):
 
             # Debugging output
             print("Refined Response:", refined_response.content)
+            print(refined_response.usage_metadata)
             return refined_response.content.strip()
         else:
             # Return the initial response if successful
@@ -151,7 +153,7 @@ def get_response(user_input, llm, vector_store, k=3):
 
 # Example usage
 if __name__ == "__main__":
-    user_query = "provide me the student names from the course computer science'"
+    user_query = "List the names of students who have a WarningCount greater than 0"
     response = get_response(user_query, llm, vector_store, k=5)
     
     if response:

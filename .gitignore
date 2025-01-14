@@ -4,3 +4,4 @@ chroma_db
 test*.py
 chroma_langchain_db
 preprocessed_schema.txt
+llm-testing-447813-e0db393f4a53.json
