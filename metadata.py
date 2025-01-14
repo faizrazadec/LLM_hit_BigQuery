@@ -1,39 +1,51 @@
 FEW_SHOT="""
-Example 1:
+#### Example 1:
+**User Query:** "Get the names of all departments."
+**Schema Context:**
+Table: Departments Columns:
+    DepartmentID (INTEGER): A unique identifier for each department.
+    Name (STRING): The name of the department.
+    Abbrevation (STRING): The abbreviation of the department.
+**Response:**
+`SELECT Name FROM Departments;`
 
-Query: "List all students who have warnings and belong to the Computer Science department."
+#### Example 2:
+**User Query:** "List all students with their department names."
+**Schema Context:**
+Table: Students Columns:
+    RollNo (STRING): Unique identifier for each student.
+    Name (STRING): The name of the student.
+    DepartmentID (STRING): Foreign key referencing Departments.DepartmentID.
+Table: Departments Columns:
+    DepartmentID (INTEGER): Unique identifier for each department.
+    Name (STRING): The name of the department.
+**Response:**
+`SELECT Students.Name, Departments.Name AS DepartmentName FROM Students JOIN Departments ON Students.DepartmentID = Departments.DepartmentID;`
 
-`SELECT s.Name 
-FROM Students s
-JOIN Departments d ON s.DepartmentID = d.DepartmentID
-WHERE s.WarningCount > 0 AND d.Name = 'Computer Science';`
+#### Example 3:
+**User Query:** "Show the total dues and statuses of challans for all students in Fall 2025."
+**Schema Context:**
+Table: ChallanForm Columns:
+    Semester (STRING): Foreign key referencing Semester.Semester.
+    RollNumber (STRING): Foreign key referencing Students.RollNo.
+    TotalDues (INTEGER): The total dues for the student.
+    Status (STRING): The status of the challan.
+Table: Semester Columns:
+    Semester (STRING): The name of the semester.
+**Response:**
+`SELECT RollNumber, TotalDues, Status FROM ChallanForm WHERE Semester = 'Fall 2025';`
 
-Example 2:
+#### Example 4:
+**User Query:** "Find all courses offered in Spring 2026 with available seats."
+**Schema Context:**
+Table: Courses_Semester Columns:
+    CourseID (INTEGER): Foreign key referencing Courses.CourseID.
+    Semester (STRING): Foreign key referencing Semester.Semester.
+    AvailableSeats (INTEGER): Number of seats available.
+Table: Semester Columns:
+    Semester (STRING): Name or identifier of the semester.
+**Response:**
+`SELECT CourseID, AvailableSeats FROM Courses_Semester WHERE Semester = 'Spring 2026' AND AvailableSeats > 0;`
 
-Query: "What courses are offered in the Fall 2025 semester by the Computer Science department?"
-
-`SELECT c.CourseName, cs.Section, cs.AvailableSeats
-FROM Courses_Semester cs
-JOIN Courses c ON cs.CourseID = c.CourseID
-JOIN Departments d ON cs.DepartmentID = d.DepartmentID
-WHERE cs.Semester = 'Fall 2025' AND d.Name = 'Computer Science';`
-
-Example 3:
-
-Query: "Get the GPA of student John Doe in the course 'Data Structures' for the Spring 2025 semester."
-
-`SELECT r.GPA 
-FROM Registration r
-JOIN Students s ON r.RollNumber = s.RollNo
-JOIN Courses c ON r.CourseID = c.CourseID
-WHERE s.Name = 'John Doe' AND c.CourseName = 'Data Structures' AND r.Semester = 'Spring 2025';`
-
-Example 4:
-
-Query: "How many seats are available for the course 'Algorithms' in the Fall 2025 semester?"
-
-`SELECT cs.AvailableSeats
-FROM Courses_Semester cs
-JOIN Courses c ON cs.CourseID = c.CourseID
-WHERE c.CourseName = 'Algorithms' AND cs.Semester = 'Fall 2025';`
+Your task is to strictly adhere to the schema context and instructions provided. Ensure no pretrained assumptions influence the SQL query generation.
 """

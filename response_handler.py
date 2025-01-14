@@ -1,5 +1,6 @@
 from langchain_core.messages import SystemMessage, HumanMessage
 from custom_prompts import SYSTEM_PROMPT
+import asyncio
 
 def get_response(user_input, llm, vector_store, k=3):
     try:
@@ -39,3 +40,45 @@ def get_response(user_input, llm, vector_store, k=3):
             
     except Exception as e:
         return f"Error generating response: {str(e)}"
+    
+
+async def get_response_async(user_input, llm, vector_store, k=3):
+    try:
+        # Retrieve relevant schema information from ChromaDB
+        results = await asyncio.to_thread(vector_store.similarity_search, user_input, k=k)
+
+        # Flatten the list of results to extract content
+        flattened_context = [item.page_content for item in results]
+
+        # Concatenate retrieved schema context
+        context = "\n".join(flattened_context)
+
+        # Initial system prompt and message
+        system_message = SystemMessage(content=f"{SYSTEM_PROMPT}\nSchema Context:\n{context}")
+        human_message = HumanMessage(content=user_input)
+
+        # Generate response asynchronously
+        response = await asyncio.to_thread(llm.invoke, [system_message, human_message])
+
+        if "I cannot generate a SQL query for this request based on the provided schema." in response.content.strip():
+            SYSTEM_PROMPT_2 = f"""
+            The previous attempt to generate a SQL query was unsuccessful. Now, you are tasked with helping the user refine the prompt for a better SQL generation.
+            Also tell the user why the query could not generate the SQL query and suggest improvements.
+
+            Here is the user's query that needs refinement: 
+            {user_input}
+
+            Schema Context:
+            {context}
+
+            Suggest a better version of the user's query that will lead to a more accurate SQL query generation.
+            """
+            refined_system_message = SystemMessage(content=SYSTEM_PROMPT_2)
+            refined_response = await asyncio.to_thread(llm.invoke, [refined_system_message, human_message])
+            return refined_response.content.strip()
+        else:
+            return response.content.strip()
+
+    except Exception as e:
+        return f"An error occurred: {e}"
+

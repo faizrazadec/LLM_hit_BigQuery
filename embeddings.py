@@ -8,7 +8,7 @@ load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-schema_file = 'preprocessed_schema.txt'
+schema_file = 'schema.txt'
 
 embeddings = GoogleGenerativeAIEmbeddings(
     model="models/embedding-001",
