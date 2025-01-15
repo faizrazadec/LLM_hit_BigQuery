@@ -1,36 +1,52 @@
 import streamlit as st
 import asyncio
-from test import get_data, summary
-from components_test import initialize_components
-from response_handler import get_response_async
-from big_query_manager import BigQueryManager
-import os
-from dotenv import load_dotenv
-load_dotenv()
-
-PROJECT_ID = os.getenv('PROJECT_ID')
-DATASET_ID = os.getenv("DATASET_ID")
-bq_manager = BigQueryManager(project_id=PROJECT_ID, dataset_id=DATASET_ID)
+from components import initialize_components
+from response_generator_test import generate_initial_response, trigger_fallback_logic, get_response
+from data_handler_test import refine_response, get_data, data_handler
+from langchain_core.messages import HumanMessage
+import pandas as pd
+import altair as alt
 
 async def main():
     # Configure the page
     st.set_page_config(page_title="SQL Query Generator", page_icon="🔍", layout="wide")
     
     # Application title and description
-    st.title("🔍 SQL Query Generator")
+    st.title("Intelligent Automated Data Insights and Visualization System")
     st.write("Enter your query in natural language, and I'll help you generate the corresponding SQL query.")
 
-    # Initialize components (e.g., LLM and Vector Store)
+    # Add custom CSS for chart styling
+    st.markdown("""
+        <style>
+        .stChart {
+            margin: auto;
+            width: 80% !important;
+        }
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 2rem auto;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Initialize components
     try:
-        if "llm" not in st.session_state or "vector_store" not in st.session_state:
-            st.session_state.llm, st.session_state.vector_store = await initialize_components()
-        llm = st.session_state.llm
-        vector_store = st.session_state.vector_store
+        if "llm" not in st.session_state or "vector_store" not in st.session_state or "bq_manager" not in st.session_state:
+            llm, vector_store, bq_manager = await initialize_components()
+            st.session_state.llm = llm
+            st.session_state.vector_store = vector_store
+            st.session_state.bq_manager = bq_manager
+        else:
+            llm = st.session_state.llm
+            vector_store = st.session_state.vector_store
+            bq_manager = st.session_state.bq_manager
     except Exception as e:
         st.error(f"Failed to initialize components. Error: {e}")
         return
 
-    # User input for natural language query
+    # User input
     user_query = st.text_area(
         "Enter your query:",
         height=68,
@@ -38,30 +54,57 @@ async def main():
     )
 
     # Generate SQL Query Button
-    if st.button("Generate SQL Query"):
-        if user_query.strip():
-            with st.spinner("Generating SQL query..."):
-                try:
-                    # Call the asynchronous query generation function
-                    response = await get_response_async(user_query, llm, vector_store, k=5)
-
-                    if response:
-                        st.success("Query generated successfully!")
-                        st.markdown("### Response:")
-                        st.code(response, language="sql")
+    if st.button("Submit"):
+        if user_query:
+            # Create placeholder for results
+            with st.container():
+                # Step 1: Get initial response from LLM
+                initial_response = generate_initial_response(user_query, llm, vector_store, k=5)
+                st.write("Initial Response from LLM:")
+                st.write(initial_response)
+                
+                # Step 2: Check if initial response indicates fallback is needed
+                if "I cannot generate a SQL query for this request based on the provided schema." in initial_response:
+                    st.write("Fallback response generated.")
+                    fallback_response = trigger_fallback_logic(user_query, llm, "", HumanMessage(content=user_query))
+                    st.write("Fallback Response:")
+                    st.write(fallback_response)
+                else:
+                    # Step 3: Refine the response to remove backticks if any
+                    refined_response = refine_response(initial_response)
+                    st.write("Refined Response:")
+                    st.write(refined_response)
+                    
+                    # Step 4: Get data from BigQuery
+                    data = get_data(bq_manager, refined_response)
+                    st.write("Data retrieved from BigQuery:")
+                    st.write(data)
+                    
+                    # Step 5: Handle and summarize the data
+                    if isinstance(data, pd.DataFrame) and not data.empty:
+                        summary_text, chart = data_handler(data, user_query, llm)
+                        st.write("Data Summary:")
+                        st.write(summary_text)
                         
-                        df = get_data(response)
-                        st.success("Result!")
-                        st.dataframe(df)
-                        st.markdown("### Summary")
-                        summ = summary(user_query, llm)
-                        st.write(summ)
+                        # Display the chart if one was generated
+                        if chart is not None:
+                            # Create columns for centered layout
+                            col1, col2, col3 = st.columns([1, 2, 1])
+                            with col2:
+                                st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+                                # Configure chart size and display
+                                chart = chart.properties(
+                                    width=600,  # More readable width
+                                    height=400  # More readable height
+                                ).configure_view(
+                                    strokeWidth=0
+                                )
+                                st.altair_chart(chart, use_container_width=False)
+                                st.markdown('</div>', unsafe_allow_html=True)
                     else:
-                        st.error("Failed to generate a response. Please try again.")
-                except Exception as e:
-                    st.error(f"An error occurred while processing your request: {e}")
+                        st.write("No relevant data found.")
         else:
-            st.warning("Please enter a query first.")
+            st.write("Please enter a query.")
 
     # Sidebar with additional information
     with st.sidebar:
