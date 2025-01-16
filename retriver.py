@@ -21,7 +21,7 @@ vector_store = Chroma(
 )
 
 # Function to test retrieval
-def test_retrieval(query, k=3):
+def test_retrieval(query, k=5):
     try:
         # Perform similarity search
         results = vector_store.similarity_search(query, k=k)
@@ -30,7 +30,7 @@ def test_retrieval(query, k=3):
         if results:
             print(f"Top {k} results for the query: '{query}'")
             for idx, res in enumerate(results):
-                print(f"{idx + 1}. {res.page_content} [{res.metadata}]")
+                print(f"{idx + 1}. {res.page_content}")
         else:
             print("No results found.")
     
@@ -38,5 +38,5 @@ def test_retrieval(query, k=3):
         print(f"Error during retrieval: {e}")
 
 if __name__ == "__main__":
-    query = 'Provide me the names of the students that have paid their challanform and are in semester fall 2025?'
+    query = 'provide me the student names from the course computer science'
     test_retrieval(query)
