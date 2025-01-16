@@ -100,26 +100,28 @@ def data_handler(data: pd.DataFrame, user_input, llm):
     
     # Extract Python code if present
     code_pattern = r'```python(.*?)```'
+    png_pattern = r'\b\w+\.png\b'
+    html_pattern = r'\b\w+\.html\b'
     code_match = re.search(code_pattern, response_text, re.DOTALL)
     
     chart = None
     if code_match:
         try:
-            # Get the code and remove any leading/trailing whitespace
+            # Get the code and execute it
             code = code_match.group(1).strip()
-            
-            # Execute the code in a controlled environment
             local_vars = {'pd': pd, 'alt': alt, 'data': data}
             exec(code, local_vars)
             
-            # If 'chart' variable exists in the executed code, get it
             if 'chart' in local_vars:
                 chart = local_vars['chart']
             
             # Remove the code block from the response text
-            response_text = re.sub(code_pattern, '', response_text).strip()
+            response_without_code = re.sub(code_pattern, '', response_text, flags=re.DOTALL).strip()
+            # response_text = re.sub(code_pattern, '', response_text).strip()
+            response_without_code_and_png = re.sub(png_pattern, '', response_without_code).strip()
+            response_without_code_and_html = re.sub(html_pattern, '', response_without_code_and_png).strip()
             
         except Exception as e:
             response_text += f"\nError generating visualization: {str(e)}"
     
-    return response_text, chart
+    return response_without_code_and_html, chart

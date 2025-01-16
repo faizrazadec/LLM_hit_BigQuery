@@ -9,4 +9,4 @@ llm-testing-447813-e0db393f4a53.json
 ttt.py
 *.png
 *.json
-*test.py
+*_test.py
