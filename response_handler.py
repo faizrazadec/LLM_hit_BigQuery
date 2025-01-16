@@ -1,8 +1,6 @@
 from langchain_core.messages import SystemMessage, HumanMessage
 from custom_prompts import SYSTEM_PROMPT
-    
 from langchain_core.messages import SystemMessage, HumanMessage
-import regex as re
 from custom_prompts import SYSTEM_PROMPT
 
 def generate_initial_response(user_input, llm, vector_store, k=3):

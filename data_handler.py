@@ -1,5 +1,6 @@
-import regex as re
 import pandas as pd
+import altair as alt
+import regex as re
 path = 'image.png'
 
 def refine_response(response):
@@ -19,7 +20,12 @@ def get_data(bq_manager, reg):
     return data
 
 def data_handler(data: pd.DataFrame, user_input, llm):
+    """
+    Handle data processing and visualization based on user input
+    Returns: tuple (summary_text, chart) where chart is None if no visualization was created
+    """
     data_json = data.to_json(orient='records', lines=False)
+
     improved_prompt = f"""
     You are an expert data analysis assistant tasked with analyzing the dataset provided in JSON format and summarizing it based on the user's query. You are a helpful assistant for generating SQL queries and answering data-related questions. When responding to user queries, please provide a clear and concise summary of the relevant data. Include necessary details to make the response informative, but avoid unnecessary context about the dataset itself (such as dataset preprocessing or filtering). For example, if the query asks for students registered in a course, the response should directly focus on the result (e.g., the list of student names) with a brief, informative sentence. Do not mention dataset characteristics unless directly requested by the user.
 
@@ -88,5 +94,32 @@ def data_handler(data: pd.DataFrame, user_input, llm):
     - And the user's query: {user_input}
     Please summarize the data accordingly. If a graph is requested, generate the appropriate visualization and provide it as part of the response.
 """
+    
     result = llm.invoke(improved_prompt)
-    return result.content.strip()
+    response_text = result.content.strip()
+    
+    # Extract Python code if present
+    code_pattern = r'```python(.*?)```'
+    code_match = re.search(code_pattern, response_text, re.DOTALL)
+    
+    chart = None
+    if code_match:
+        try:
+            # Get the code and remove any leading/trailing whitespace
+            code = code_match.group(1).strip()
+            
+            # Execute the code in a controlled environment
+            local_vars = {'pd': pd, 'alt': alt, 'data': data}
+            exec(code, local_vars)
+            
+            # If 'chart' variable exists in the executed code, get it
+            if 'chart' in local_vars:
+                chart = local_vars['chart']
+            
+            # Remove the code block from the response text
+            response_text = re.sub(code_pattern, '', response_text).strip()
+            
+        except Exception as e:
+            response_text += f"\nError generating visualization: {str(e)}"
+    
+    return response_text, chart
