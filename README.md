@@ -72,7 +72,7 @@ streamlit run app.py
 ```
 
 # 🏛️ Project Flow Diagram
-![Alt text](/home/faizraza/Projects/LLM_hit_BigQuery/data/LLM hit BigQuery.png)
+![Alt text](data/flow_diagram.png)
 
 # 📊 Usage Guide
 
@@ -82,5 +82,3 @@ streamlit run app.py
 - Submit the query to generate an SQL statement.
 
 - View results as an interactive table and chart.
-
-![Alt text]('data/LLM hit BigQuery.png')
