@@ -1,9 +1,27 @@
+"""
+# Data Processing and Visualization Module
+
+This module provides functions for refining SQL query responses, executing BigQuery queries,
+and handling data processing and visualization based on user queries.
+"""
+
 import pandas as pd
 import altair as alt
 import regex as re
-path = 'image.png'
 
 def refine_response(response):
+    """
+    ### `refine_response(response: str) -> str`
+    Cleans and refines SQL query responses by removing markdown artifacts such
+    as code block backticks and unnecessary tags.
+
+    **Parameters:**
+    - `response (str)`: The raw SQL query response.
+
+    **Returns:**
+    - `str`: A cleaned and formatted SQL query string.
+    """
+
     # Remove the 'sql' tag if it exists at the start of the response
     response = re.sub(r"^sql\s*", "", response)
 
@@ -14,17 +32,44 @@ def refine_response(response):
     # Strip any leading or trailing whitespace
     return response.strip()
 
+
 def get_data(bq_manager, reg):
+    """
+    ### `get_data(bq_manager, reg: str) -> pd.DataFrame`
+    Executes a SQL query using a BigQuery manager instance and returns
+    the results as a Pandas DataFrame.
+
+    **Parameters:**
+    - `bq_manager`: An instance of `BigQueryManager` to execute queries.
+    - `reg (str)`: The SQL query string to be executed.
+
+    **Returns:**
+    - `pd.DataFrame`: Query results in a Pandas DataFrame.
+    """
+
     # Execute the BigQuery query
     data = bq_manager.execute_query(reg)
     return data
 
+
 def data_handler(data: pd.DataFrame, user_input, llm):
     """
-    Handle data processing and visualization based on user input
-    Returns: tuple (summary_text, chart) where chart is None if no visualization was created
+    ### `data_handler(data: pd.DataFrame, user_input: str, llm) -> tuple`
+    Processes data and generates a summary or visualization based on the
+    user's query using an LLM (Large Language Model).
+
+    **Parameters:**
+    - `data (pd.DataFrame)`: The dataset retrieved from BigQuery.
+    - `user_input (str)`: The user's query regarding the data.
+    - `llm`: The language model instance to analyze and summarize the data.
+
+    **Returns:**
+    - `tuple (str, Optional[alt.Chart])`: A tuple containing:
+    - A text summary of the data.
+    - An Altair chart visualization (or `None` if no visualization is generated).
     """
-    data_json = data.to_json(orient='records', lines=False)
+
+    data_json = data.to_json(orient="records", lines=False)
 
     improved_prompt = f"""
     You are an expert data analysis assistant tasked with analyzing the dataset provided in JSON format and summarizing it based on the user's query. You are a helpful assistant for generating SQL queries and answering data-related questions. When responding to user queries, please provide a clear and concise summary of the relevant data. Include necessary details to make the response informative, but avoid unnecessary context about the dataset itself (such as dataset preprocessing or filtering). For example, if the query asks for students registered in a course, the response should directly focus on the result (e.g., the list of student names) with a brief, informative sentence. Do not mention dataset characteristics unless directly requested by the user.
@@ -86,42 +131,40 @@ def data_handler(data: pd.DataFrame, user_input, llm):
 
     # Save the chart
     chart.save('average_cgpa_by_department_bar_chart.json')
-    
-    image {path}
 
     ### Your Task:
     - Given the dataset: {data_json}
     - And the user's query: {user_input}
     Please summarize the data accordingly. If a graph is requested, generate the appropriate visualization and provide it as part of the response.
 """
-    
+
     result = llm.invoke(improved_prompt)
     response_text = result.content.strip()
-    
+
     # Extract Python code if present
-    code_pattern = r'```python(.*?)```'
-    png_pattern = r'\b\w+\.png\b'
-    html_pattern = r'\b\w+\.html\b'
+    code_pattern = r"```python(.*?)```"
+    png_pattern = r"\b\w+\.png\b"
+    html_pattern = r"\b\w+\.html\b"
     code_match = re.search(code_pattern, response_text, re.DOTALL)
-    
+
     chart = None
     if code_match:
         try:
             # Get the code and execute it
             code = code_match.group(1).strip()
-            local_vars = {'pd': pd, 'alt': alt, 'data': data}
+            local_vars = {"pd": pd, "alt": alt, "data": data}
             exec(code, local_vars)
-            
-            if 'chart' in local_vars:
-                chart = local_vars['chart']
-            
-            # Remove the code block from the response text
-            response_without_code = re.sub(code_pattern, '', response_text, flags=re.DOTALL).strip()
-            # response_text = re.sub(code_pattern, '', response_text).strip()
-            response_without_code_and_png = re.sub(png_pattern, '', response_without_code).strip()
-            response_without_code_and_html = re.sub(html_pattern, '', response_without_code_and_png).strip()
-            
+
+            if "chart" in local_vars:
+                chart = local_vars["chart"]
+
+            response_text = re.sub(
+                code_pattern, "", response_text, flags=re.DOTALL
+            ).strip()
+            response_text = re.sub(png_pattern, "", response_text).strip()
+            response_text = re.sub(html_pattern, "", response_text).strip()
+
         except Exception as e:
             response_text += f"\nError generating visualization: {str(e)}"
-    
-    return response_without_code_and_html, chart
+
+    return response_text, chart
