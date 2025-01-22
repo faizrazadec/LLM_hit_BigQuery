@@ -82,3 +82,5 @@ streamlit run app.py
 - Submit the query to generate an SQL statement.
 
 - View results as an interactive table and chart.
+
+![Alt text](data/usage_example.png)
