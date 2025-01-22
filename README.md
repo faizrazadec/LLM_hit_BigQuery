@@ -13,18 +13,6 @@ This system leverages **LangChain** and **Google's Gemini AI** to:
 
 ---
 
-## 📂 Project Structure
-
-├── components/ # Application components (LLM, Vector Store, BQ Manager) 
-├── data_handler.py # Handles data fetching and summarization 
-├── response_handler.py # Processes user queries and fallback logic 
-├── app.py # Main Streamlit application entry point 
-├── requirements.txt # Dependencies list 
-└── README.md # Project documentation
-
-
----
-
 ## ⚙️ Features
 
 - **Natural Language to SQL Translation**  
