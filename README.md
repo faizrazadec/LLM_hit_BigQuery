@@ -83,4 +83,4 @@ streamlit run app.py
 
 - View results as an interactive table and chart.
 
-![Alt text](/home/faizraza/Projects/LLM_hit_BigQuery/data/LLM hit BigQuery.png)
+![Alt text]('data/LLM hit BigQuery.png')

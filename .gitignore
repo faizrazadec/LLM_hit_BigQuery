@@ -3,7 +3,6 @@ __pycache__
 .env
 llm-testing-447813-e0db393f4a53.json
 *.html
-*.png
 *.json
 retriver.py
 main.py
