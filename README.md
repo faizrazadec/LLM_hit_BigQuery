@@ -51,19 +51,25 @@ cd intelligent-data-insights
 ```
 
 ### 2. Clone the Repository
+```
 python3 -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+```
 
 ### 3. Install Dependencies
+```
 pip install -r requirements.txt
+```
 
 ### 4. Set Up Environment Variables
 Create a .env file and configure the following:
-GCP_PROJECT_ID=
-BIGQUERY_CREDENTIALS_PATH=
+- GCP_PROJECT_ID=
+- BIGQUERY_CREDENTIALS_PATH=
 
 ### 5. Run the Application
+```
 streamlit run app.py
+```
 
 # 🏛️ Project Flow Diagram
 ![Alt text](/home/faizraza/Projects/LLM_hit_BigQuery/data/LLM hit BigQuery.png)
