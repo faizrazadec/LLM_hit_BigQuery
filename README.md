@@ -13,6 +13,18 @@ This system leverages **LangChain** and **Google's Gemini AI** to:
 
 ---
 
+## Dataset
+- The provided dataset represents a university management system with multiple relational tables. Each table contains structured data related to departments, students, instructors, courses, semesters, and financial records. The schema is designed with proper constraints to ensure data integrity.
+
+- **Data Definition Language (DDL):**
+
+Each table is defined with appropriate primary and foreign key constraints to maintain relationships between entities.
+
+You can access the complete database schema and SQL scripts from the following link:
+[University Management Database Schema](data/schema.txt)
+
+---
+
 ## ⚙️ Features
 
 - **Natural Language to SQL Translation**  
@@ -31,8 +43,7 @@ This system leverages **LangChain** and **Google's Gemini AI** to:
 
 ## 🏗️ Tech Stack
 
-- **Frontend:** Streamlit  
-- **Backend:** Flask/FastAPI  
+- **WebApp:** Streamlit  
 - **AI Model:** LangChain + Google's Gemini  
 - **Database:** Google BigQuery  
 - **Infrastructure:** Docker, GCP  
