@@ -7,7 +7,7 @@ when SQL query generation fails.
 """
 
 from langchain_core.messages import SystemMessage, HumanMessage
-from src.system_prompt import SYSTEM_PROMPT
+from system_prompt import SYSTEM_PROMPT
 
 
 def generate_initial_response(user_input, llm, vector_store, k=3):

@@ -14,9 +14,9 @@ import asyncio
 import streamlit as st
 import pandas as pd
 from langchain_core.messages import HumanMessage
-from src.components import initialize_components
-from src.response_handler import generate_initial_response, trigger_fallback_logic
-from src.data_handler import refine_response, get_data, data_handler
+from components import initialize_components
+from response_handler import generate_initial_response, trigger_fallback_logic
+from data_handler import refine_response, get_data, data_handler
 
 async def main():
     """This is the main function for the streamlit app."""
@@ -87,39 +87,39 @@ async def main():
                         initial_response = generate_initial_response(
                             user_query, llm, vector_store, k=5
                         )
-                        # st.write("Initial Response from LLM:")
-                        # st.write(initial_response)
+                        st.write("Initial Response from LLM:")
+                        st.write(initial_response)
 
                         # Step 2: Check if initial response indicates fallback is needed
                         if (
                             "I cannot generate a SQL query for this request based on the provided schema."
                             in initial_response
                         ):
-                            # st.write("Fallback response generated.")
+                            st.write("Fallback response generated.")
                             fallback_response = trigger_fallback_logic(
                                 user_query, llm, "", HumanMessage(content=user_query)
                             )
-                            # st.write("Fallback Response:")
-                            # st.write(fallback_response)
+                            st.write("Fallback Response:")
+                            st.write(fallback_response)
                         else:
                             # Step 3: Refine the response to remove backticks if any
                             refined_response = refine_response(initial_response)
-                            # st.write("Refined Response:")
-                            # st.write(refined_response)
+                            st.write("Refined Response:")
+                            st.write(refined_response)
 
                             # Step 4: Get data from BigQuery
                             data = get_data(bq_manager, refined_response)
-                            # st.write("Data retrieved from BigQuery:")
-                            # st.write(data)
+                            st.write("Data retrieved from BigQuery:")
+                            st.write(data)
 
                             # Step 5: Handle and summarize the data
                             if isinstance(data, pd.DataFrame) and not data.empty:
                                 summary_text, chart = data_handler(
                                     data, user_query, llm
                                 )
-                                # st.write("Data Summary:")
-                                # st.write(summary_text)
-                                # st.text_area(st.write(summary_text))
+                                st.write("Data Summary:")
+                                st.write(summary_text)
+                                st.text_area(st.write(summary_text))
                                 with st.expander(
                                     "Click wot view the Data Summary", expanded=True
                                 ):

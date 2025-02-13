@@ -11,15 +11,8 @@ import regex as re
 
 def refine_response(response):
     """
-    ### `refine_response(response: str) -> str`
     Cleans and refines SQL query responses by removing markdown artifacts such
     as code block backticks and unnecessary tags.
-
-    **Parameters:**
-    - `response (str)`: The raw SQL query response.
-
-    **Returns:**
-    - `str`: A cleaned and formatted SQL query string.
     """
 
     # Remove the 'sql' tag if it exists at the start of the response
@@ -35,16 +28,8 @@ def refine_response(response):
 
 def get_data(bq_manager, reg):
     """
-    ### `get_data(bq_manager, reg: str) -> pd.DataFrame`
     Executes a SQL query using a BigQuery manager instance and returns
     the results as a Pandas DataFrame.
-
-    **Parameters:**
-    - `bq_manager`: An instance of `BigQueryManager` to execute queries.
-    - `reg (str)`: The SQL query string to be executed.
-
-    **Returns:**
-    - `pd.DataFrame`: Query results in a Pandas DataFrame.
     """
 
     # Execute the BigQuery query
@@ -54,24 +39,13 @@ def get_data(bq_manager, reg):
 
 def data_handler(data: pd.DataFrame, user_input, llm):
     """
-    ### `data_handler(data: pd.DataFrame, user_input: str, llm) -> tuple`
     Processes data and generates a summary or visualization based on the
     user's query using an LLM (Large Language Model).
-
-    **Parameters:**
-    - `data (pd.DataFrame)`: The dataset retrieved from BigQuery.
-    - `user_input (str)`: The user's query regarding the data.
-    - `llm`: The language model instance to analyze and summarize the data.
-
-    **Returns:**
-    - `tuple (str, Optional[alt.Chart])`: A tuple containing:
-    - A text summary of the data.
-    - An Altair chart visualization (or `None` if no visualization is generated).
     """
 
     data_json = data.to_json(orient="records", lines=False)
 
-    improved_prompt = f"""
+    system_prompt = f"""
     You are an expert data analysis assistant tasked with analyzing the dataset provided in JSON format and summarizing it based on the user's query. You are a helpful assistant for generating SQL queries and answering data-related questions. When responding to user queries, please provide a clear and concise summary of the relevant data. Include necessary details to make the response informative, but avoid unnecessary context about the dataset itself (such as dataset preprocessing or filtering). For example, if the query asks for students registered in a course, the response should directly focus on the result (e.g., the list of student names) with a brief, informative sentence. Do not mention dataset characteristics unless directly requested by the user.
 
     ### Instructions:
@@ -136,9 +110,9 @@ def data_handler(data: pd.DataFrame, user_input, llm):
     - Given the dataset: {data_json}
     - And the user's query: {user_input}
     Please summarize the data accordingly. If a graph is requested, generate the appropriate visualization and provide it as part of the response.
-"""
+    """
 
-    result = llm.invoke(improved_prompt)
+    result = llm.invoke(system_prompt)
     response_text = result.content.strip()
 
     # Extract Python code if present

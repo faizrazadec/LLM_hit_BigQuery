@@ -17,7 +17,7 @@ load_dotenv()
 
 gemini_api_key = os.getenv("GEMINI_API_KEY")
 
-SCHEMA_FILE = "schema.txt"
+SCHEMA_FILE = "data/schema.txt"
 
 embeddings = GoogleGenerativeAIEmbeddings(
     model="models/embedding-001",
@@ -29,18 +29,8 @@ embeddings = GoogleGenerativeAIEmbeddings(
 # Function to generate embeddings
 def generate_embeddings(file_path):
     """
-    ### `generate_embeddings(file_path: str) -> list | None`
     Reads a schema file, extracts individual table definitions,
     and generates embeddings for each table using the Google Generative AI embedding model.
-
-    **Parameters:**
-    - `file_path (str)`: Path to the schema file containing table definitions.
-
-    **Returns:**
-    - `list[dict] | None`: A list of dictionaries, each containing:
-    - `"document"`: The extracted table schema.
-    - `"embedding"`: Corresponding embedding vector.
-    - Returns `None` if an error occurs.
     """
     try:
         # Read the schema file
@@ -73,13 +63,13 @@ schema_embeddings = generate_embeddings(SCHEMA_FILE)
 # Print the embeddings and store them in Chroma
 if schema_embeddings:
     print("Schema Embeddings:")
-    print(schema_embeddings)
+    # print(schema_embeddings)
 
     # Create Chroma vector store
     vector_store = Chroma(
-        collection_name="example_collection",
+        collection_name="schema_collection",
         embedding_function=embeddings,
-        persist_directory="./chroma_langchain_db",
+        persist_directory="./langchain_chroma_db",
     )
 
     # Generate unique IDs for the documents

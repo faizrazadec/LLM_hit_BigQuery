@@ -7,42 +7,18 @@ This module sets up and initializes the following components needed for the appl
 chat functionalities.
 3. **Chroma Vector Store:** A persistent storage solution for document embeddings,
 used in retrieval-based AI systems.
-
-Functions:
-----------
-- `initialize_components() -> tuple`  
-  Asynchronously initializes and returns the BigQueryManager, ChatGoogleGenerativeAI,
-  and Chroma vector store.
-
-Environment Variables Required:
--------------------------------
-- `PROJECT_ID`: Google Cloud project ID for BigQuery.
-- `DATASET_ID`: BigQuery dataset ID.
-- `GEMINI_API_KEY`: API key for Google Gemini AI services.
-
-Dependencies:
--------------
-Install the required dependencies using:
-
-```bash
-pip install langchain google-cloud-bigquery python-dotenv langchain-google-genai langchain-chroma
-
 """
 
 import os
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain_chroma import Chroma
-from src.big_query_manager import BigQueryManager
+from big_query_manager import BigQueryManager
 
 
 async def initialize_components():
     """
     Initializes the necessary components for the application.
-    Returns:
-        llm: ChatGoogleGenerativeAI instance.
-        vector_store: Chroma vector store instance.
-        bq_manager: BigQueryManager instance.
     """
     # Load environment variables
     load_dotenv()
@@ -67,9 +43,9 @@ async def initialize_components():
         task_type="retrieval_document",
     )
     vector_store = Chroma(
-        collection_name="example_collection",
+        collection_name="schema_collection",
         embedding_function=embeddings,
-        persist_directory="./chroma_langchain_db",
+        persist_directory="./langchain_chroma_db",
     )
 
     return llm, vector_store, bq_manager

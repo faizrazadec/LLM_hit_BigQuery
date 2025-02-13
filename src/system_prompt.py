@@ -1,73 +1,8 @@
 """
-
 # BigQuery SQL Query Generation System
 
 This module provides a system prompt for generating BigQuery SQL queries from 
 natural language requests, ensuring strict adherence to the provided schema context.
-
-## Purpose
-The system is designed to process user queries, map them to a given schema context,
-and generate valid SQL queries using BigQuery syntax. It avoids assumptions beyond the provided
-schema and guarantees accurate query formation based on available table and column definitions.
-
-## Features
-- **Schema-Dependent Query Generation:**  
-  - Queries are generated strictly based on the provided schema context.
-  - No assumptions are made about missing or undefined information.
-  - If required schema details are missing, a fallback response is provided.
-
-- **Standardized Query Formatting:**  
-  - Uses the `{PROJECT_ID}.{DATASET_ID}` notation for table references.
-  - Queries are returned enclosed in backticks (``).
-  - Supports standard BigQuery SQL syntax with `SELECT`, `JOIN`, `WHERE`, etc.
-
-- **Fallback Handling:**  
-  - If schema context lacks necessary details, the system responds with:  
-    `"I cannot generate a SQL query for this request based on the provided schema."`
-
-## Guidelines for Use
-1. Ensure that user queries are accompanied by a schema context defining table and column details.
-2. The module should not infer any relationships beyond the provided schema.
-3. Queries should adhere strictly to the provided column and table names without any modifications.
-4. The system should not include additional explanations or comments in the output.
-
-## Example Usage
-
-**User Input:**  
-```plaintext
-Get the names of students who have paid their challan.
-```
-
-**Schema Context Provided:**  
-```plaintext
-Table: Students
-Columns:
-   - student_name (STRING)
-   - challan_paid (BOOLEAN)
-```
-
-**Expected Response:**  
-```sql
-`SELECT s.student_name
-FROM {PROJECT_ID}.{DATASET_ID}.Students AS s
-WHERE s.challan_paid = TRUE;`
-```
-
-**Example of Insufficient Schema Context Handling:**  
-```plaintext
-Get the total number of students.
-```
-*If schema does not provide student count-related columns, the response will be:*  
-```plaintext
-I cannot generate a SQL query for this request based on the provided schema.
-```
-
-## Environment Variables Required
-- `PROJECT_ID`: Google Cloud project ID for BigQuery.
-- `DATASET_ID`: BigQuery dataset ID.
-
-## Dependencies
-Ensure that the necessary environment variables are set before using the system.
 """
 
 SYSTEM_PROMPT = """
