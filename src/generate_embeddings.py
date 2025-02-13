@@ -69,7 +69,7 @@ if schema_embeddings:
     vector_store = Chroma(
         collection_name="schema_collection",
         embedding_function=embeddings,
-        persist_directory="./langchain_chroma_db",
+        persist_directory="src/langchain_chroma_db",
     )
 
     # Generate unique IDs for the documents

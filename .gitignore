@@ -1,5 +1,5 @@
 **/__pycache__
 .env
-*.html
+**/*.html
 **/*.json
 **/langchain_chroma_db

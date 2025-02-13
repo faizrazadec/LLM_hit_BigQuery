@@ -1,6 +1,6 @@
-# 📊 Intelligent Data Insights and Visualization System
+# 📊 LLMHitBigQuery
 
-Welcome to the **Intelligent Data Insights and Visualization System**, an AI-powered web application that enables users to generate SQL queries from natural language input and visualize the results effectively.
+Welcome to the **LLMHitBigQuery**, an AI-powered web application that enables users to generate SQL queries from natural language input and visualize the results effectively.
 
 ## 🚀 Project Overview
 
@@ -46,7 +46,6 @@ You can access the complete database schema and SQL scripts from the following l
 - **WebApp:** Streamlit  
 - **AI Model:** LangChain + Google's Gemini  
 - **Database:** Google BigQuery  
-- **Infrastructure:** Docker, GCP  
 
 ---
 
@@ -57,12 +56,12 @@ Follow the steps below to set up the project locally:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/intelligent-data-insights.git
-cd intelligent-data-insights
+git https://github.com/faizrazadec/LLMHitBigQuery.git
+cd LLMHitBigQuery
 ```
 
 ### 2. Clone the Repository
-```
+```bash
 python3 -m venv venv
 source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 ```
@@ -94,3 +93,11 @@ streamlit run app.py
 - View results as an interactive table and chart.
 
 ![usage example](data/usage_example.png)
+
+---
+
+### ⭐ **Support This Project!**  
+If you found this useful, **please consider leaving a star ⭐ on GitHub**!  
+It motivates me to keep building more **open-source tools** 🚀  
+
+---

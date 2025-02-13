@@ -15,6 +15,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmb
 from langchain_chroma import Chroma
 from big_query_manager import BigQueryManager
 
+load_dotenv()
 
 async def initialize_components():
     """
